@@ -1,6 +1,5 @@
 # -*- encoding:utf-8 -*-
 import datetime
-import MySQLdb
 import urllib2
 import socks
 import chardet
@@ -183,9 +182,9 @@ class Stockchain():
         number=str(self.stock_number)
         stock = Stock(number)
         if number.startswith('6'):
-            file_name="export\\SH#"+number+".txt"
+            file_name=os.path.join("export", "SH#"+number+".txt")
         else:
-            file_name="export\\SZ#"+number+".txt"
+            file_name=os.path.join("export", "SZ#"+number+".txt")
         try:
             f=open(file_name)
         except:
