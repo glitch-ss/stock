@@ -1,5 +1,5 @@
 from Stock import *
-
+import os
 def add_history():
     for sz in [0,1]:
         for i in range(0,5000):
@@ -7,9 +7,9 @@ def add_history():
             stock_number=str(stock_number)
             if sz==1:
                 stock_number = re.sub(r'^6','0',stock_number)
-                file_name="export\SZ#" + stock_number + ".txt"
+                file_name=os.path.join("export","SZ#" + stock_number + ".txt")
             else:
-                file_name="export\SH#" + stock_number + ".txt"
+                file_name=os.path.join("export","SH#" + stock_number + ".txt")
             print stock_number
             if not os.path.exists(file_name):
                 continue

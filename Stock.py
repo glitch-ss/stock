@@ -152,6 +152,8 @@ class Stockchain():
             print e
             print 'get data count fail'
             return 0
+        if len(count) == 0:
+            return 0
         return count[0][0]
 
     def get_from_sql(self, key_word='*', filters=None):
