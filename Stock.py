@@ -7,14 +7,23 @@ import pickle
 import re
 import os
 import requests
+import logging
 from mysql import connector
 '''
 proxy_srv='cn-proxy.jp.oracle.com'
-proxy_port=80
+proxy_port=80 
 socks.setdefaultproxy(socks.PROXY_TYPE_HTTP,proxy_srv,proxy_port)
 socks.wrapmodule(urllib2)
 '''
 from __builtin__ import int
+
+logging.basicConfig(level=logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+logger1 = logging.getLogger(__name__)
+handler1 = logging.FileHandler("log")
+handler1.setLevel(logging.INFO)
+handler1.setFormatter(formatter)
+logger1.addHandler(handler1)
 
 class Stock():
     def __init__(self, stock_number,time=None):
@@ -220,6 +229,7 @@ class Stockchain():
         try:
             result = self.cursor.execute(add_data_cmd)
             self.conn.commit()
+            logger1.info("{0} update successfully".format(self.stock_number))
         except Exception, e:
             print add_data_cmd
             print e
@@ -293,6 +303,7 @@ class Stockchain():
         try:
             self.cursor.execute(update_cmd)
             self.conn.commit()
+            logging.debug("{0} index update".format(self.stock_number))
         except Exception, e:
             print e
             print "update {0} value fail".format(self.stock_number)
