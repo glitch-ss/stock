@@ -80,12 +80,12 @@ while True:
     if day != stock.read_time:
         print day
         print "sleep 15 hours"
-        time.sleep(hours_15)
         logger1.warning("the stock 601318 is not update, maybe today is breaking, wait 15 hours")
+        time.sleep(hours_15)
         continue
     elif hour < 15:
-        time.sleep(hours_3)
         logger1.warning("now is early than 15 clock, wait 3 hours")
+        time.sleep(hours_3)
         continue
     else:
         stock.time = stock.read_time
