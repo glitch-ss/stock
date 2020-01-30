@@ -3,13 +3,9 @@ import time
 import datetime
 import os
 import re
-logging.basicConfig(level = logging.INFO,format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger1 = logging.getLogger(__name__)
-handler1 = logging.FileHandler("test1.txt")
-handler1.setLevel(logging.DEBUG)
-handler1.setFormatter(formatter)
-logger1.addHandler(handler1)
+import logging
+
+
 
 def update_stock(stock):
     if stock.open_val == "0.000" or not stock.is_stock:
@@ -81,7 +77,7 @@ while True:
         time.sleep(hours_15)
         continue
     stock = Stock('601318')
-    stock.get_current_status()
+    stock.get_cur rent_status()
     stock.data_process()
     print stock.read_time
     if day != stock.read_time:

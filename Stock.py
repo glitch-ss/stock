@@ -1,9 +1,6 @@
 # -*- encoding:utf-8 -*-
 import datetime
 import urllib2
-import socks
-import chardet
-import pickle
 import re
 import os
 import requests
