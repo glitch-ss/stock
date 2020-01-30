@@ -1,11 +1,8 @@
-from Stock import Stock, Stockchain
+from Stock import Stock, Stockchain, logger1
 import time
 import datetime
 import os
 import re
-import logging
-
-
 
 def update_stock(stock):
     if stock.open_val == "0.000" or not stock.is_stock:
@@ -84,9 +81,11 @@ while True:
         print day
         print "sleep 15 hours"
         time.sleep(hours_15)
+        logger1.warning("the stock 601318 is not update, maybe today is breaking, wait 15 hours")
         continue
     elif hour < 15:
         time.sleep(hours_3)
+        logger1.warning("now is early than 15 clock, wait 3 hours")
         continue
     else:
         stock.time = stock.read_time
