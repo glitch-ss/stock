@@ -77,7 +77,7 @@ while True:
         time.sleep(hours_15)
         continue
     stock = Stock('601318')
-    stock.get_cur rent_status()
+    stock.get_current_status()
     stock.data_process()
     print stock.read_time
     if day != stock.read_time:
