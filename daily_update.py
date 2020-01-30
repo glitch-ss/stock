@@ -70,7 +70,7 @@ while True:
     hour = time_struct.tm_hour
     weekday = now.weekday()+1
     if weekday == 6 or weekday==7:
-        print "today " + day + ", now in weekend"
+        logger1.warning("today {0}, now in weekend".format(day))
         time.sleep(hours_15)
         continue
     stock = Stock('601318')
