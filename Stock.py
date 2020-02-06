@@ -130,7 +130,7 @@ class Stockchain():
     def __init__(self, stock_number):
         self.stock_number = stock_number
         self.database = 'stock'
-        self.conn = connector.connect(host='localhost',user='root',passwd='atobefuji', port=3306, db=self.database)
+        self.conn = connector.connect(host='localhost',user='root',passwd='56811375@Dandan', port=3306, db=self.database)
         self.cursor = self.conn.cursor();
         query_cmd = "select table_name from information_schema.tables where table_name='{0}' and table_schema='{1}';".format(self.stock_number, self.database)
         self.cursor.execute(query_cmd)
@@ -226,7 +226,7 @@ class Stockchain():
         try:
             result = self.cursor.execute(add_data_cmd)
             self.conn.commit()
-            logger1.info("{0} update successfully".format(self.stock_number))
+            #logger1.info("{0} update successfully".format(self.stock_number))
         except Exception, e:
             print add_data_cmd
             print e
@@ -300,7 +300,7 @@ class Stockchain():
         try:
             self.cursor.execute(update_cmd)
             self.conn.commit()
-            logging.debug("{0} index update".format(self.stock_number))
+            #logging.debug("{0} index update".format(self.stock_number))
         except Exception, e:
             print e
             print "update {0} value fail".format(self.stock_number)
