@@ -77,7 +77,7 @@ while True:
     stock = Stock('601318')
     now_time = checkstock.get_last_sql_time()
     if now_time == day:
-        print "sql data has been updated to latest, sleep 15 hours"
+        logger1.warning("sql data has been updated to latest, sleep 15 hours")
         time.sleep(hours_15)
     stock.get_current_status()
     stock.data_process()
