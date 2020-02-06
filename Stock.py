@@ -185,30 +185,61 @@ class Stockchain():
         return result
 
     def get_from_txt(self):
+        ahead_EMA12 = 0
+        ahead_EMA26 = 0
+        ahead_DEA = 0
         number=str(self.stock_number)
         stock = Stock(number)
+        insert_value = ""
         if number.startswith('6'):
             file_name=os.path.join("export", "SH#"+number+".txt")
         else:
             file_name=os.path.join("export", "SZ#"+number+".txt")
+        insert_cmd = "insert into `{0}` (time, open_val, close_val, high_val, low_val, total_val, total_amount, week_day, EMA12, EMA26, DIF, DEA) values".format(number)
+        with open(file_name) as f:
+            for line in f.readlines():
+                if '-' in line:
+                    line = line.split('\t')
+                    stock.time = line[0].strip()
+                    stock.open_val=line[1].strip()
+                    stock.high_val=line[2].strip()
+                    stock.low_val=line[3].strip()
+                    stock.current_val=line[4].strip()
+                    stock.current_total_amount=line[5].strip()
+                    stock.current_total_val=line[6].strip()
+                    if '.00' in stock.current_total_val:
+                        stock.current_total_val=stock.current_total_val.replace(".00","")
+                    stock.week_day = datetime.datetime.strptime(stock.time, "%Y-%m-%d").weekday()+1
+                    EMA12 = (ahead_EMA12*(12-1)/(12+1))+(float(stock.current_val)*2/(12+1))
+                    EMA26 = (ahead_EMA26*(26-1)/(26+1))+(float(stock.current_val)*2/(26+1))
+                    DIF = EMA12 - EMA26
+                    DEA = (ahead_DEA * 8 / 10) + (DIF * 2 / 10)
+                    insert_value += " ('{0}', {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}),".format(stock.time, stock.open_val, stock.current_val, stock.high_val, stock.low_val, stock.current_total_val,
+                        stock.current_total_amount, stock.week_day, EMA12, EMA26, DIF, DEA)
+                    ahead_EMA12 = EMA12
+                    ahead_EMA26 = EMA26
+                    ahead_DEA = DEA
+        insert_value = insert_value[:-1]
+        insert_cmd += insert_value
+        insert_cmd += ";"
         try:
-            f=open(file_name)
-        except:
-            return
-        for line in f.readlines():
-            if '-' in line:
-                line = line.split('\t')
-                stock.time = line[0].strip()
-                stock.open_val=line[1].strip()
-                stock.high_val=line[2].strip()
-                stock.low_val=line[3].strip()
-                stock.current_val=line[4].strip()
-                stock.current_total_amount=line[5].strip()
-                stock.current_total_val=line[6].strip()
-                if '.00' in stock.current_total_val:
-                    stock.current_total_val=stock.current_total_val.replace(".00","")
-                stock.week_day = datetime.datetime.strptime(stock.time, "%Y-%m-%d").weekday()+1
-                self.add_new_data(stock)           
+            result = self.cursor.execute(insert_cmd)
+            self.conn.commit()
+        except Exception, e:
+            print e
+            print "fail to add data"
+
+    def get_last_sql_time(self):
+        cmd = "select time from `{0}` order by id desc limit 1;".format(self.stock_number) 
+        try:
+             self.cursor.execute(cmd)
+             result = self.cursor.fetchall()
+        except Exception, e:
+            print e
+            print "get time fail"
+            return None
+        if len(result) > 0:
+            return result[0][0].strftime('%Y-%m-%d')
 
     def delete_data_for_time(self,time):
         delete_cmd="delete from `" +self.stock_number+"` where time='" + time + "';"

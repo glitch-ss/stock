@@ -20,18 +20,5 @@ def init_stock(number):
     temp_stock.get_from_txt()
     count = temp_stock.get_data_count()
     print "stock day count is {0}".format(count)
-    for i in range(2, count+1):
-        current_data = temp_stock.get_from_sql(filters={"id": i})
-        if current_data is None:
-            print "init stock fail, could not get stock from sql"
-            return
-        EMA12 = temp_stock.EMA(12, current_data[0])
-        EMA26 = temp_stock.EMA(26, current_data[0])
-        DIF = temp_stock.DIF(EMA12, EMA26)
-        temp_stock.update_DIF_EMA(i, EMA12, EMA26, DIF)
-        current_data = temp_stock.get_from_sql(filters={"id": i})
-        DEA = temp_stock.DEA(current_data[0])
-        temp_stock.update_DEA(i, DEA)
-    temp_stock.close_sql()
 
 add_history()

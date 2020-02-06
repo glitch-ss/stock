@@ -63,6 +63,7 @@ def alter_type():
 
 hours_15 = 15.5*60*60
 hours_3 = 3*60*60
+checkstock = Stockchain('601318')
 while True:
     now = datetime.datetime.now()
     day = now.strftime('%Y-%m-%d')
@@ -74,6 +75,10 @@ while True:
         time.sleep(hours_15)
         continue
     stock = Stock('601318')
+    now_time = checkstock.get_last_sql_time()
+    if now_time == day:
+        print "sql data has been updated to latest, sleep 15 hours"
+        time.sleep(hours_15)
     stock.get_current_status()
     stock.data_process()
     print stock.read_time
