@@ -157,8 +157,8 @@ class Stockchain():
                 self.cursor.execute(create_cmd)
                 self.conn.commit()
             except Exception, e:
-                print e
-                print "fail to create the stock table {0}".foramt(self.stock_number)
+                logger1.error(e)
+                logger1.error("fail to create the stock table {0}".foramt(self.stock_number))
         else:
             print "table exists"
 
@@ -180,8 +180,8 @@ class Stockchain():
             self.cursor.execute(get_cmd)
             result = self.cursor.fetchall()
         except Exception, e:
-            print e
-            print "get stock value fail"
+            logger1.error(e)
+            logger1.error("get stock {0} value fail from sql".format(n))
             return None
         return result
 
