@@ -17,7 +17,7 @@ def update_other(temp_stock_chain, time):
     current_data = temp_stock.get_from_sql(filters={"time": time})
     if current_data is None:
         print "init stock fail, could not get stock from sql"
-        return
+        return stock
     i = current_data[0][0]
     EMA12 = temp_stock.EMA(12, current_data[0])
     EMA26 = temp_stock.EMA(26, current_data[0])

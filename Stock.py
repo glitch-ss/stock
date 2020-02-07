@@ -151,7 +151,7 @@ class Stockchain():
         if len(result) == 0:
             print "create the stock table"
             create_cmd = "create table `{0}` ".format(self.stock_number) + \
-                         "(id int auto_increment, time timestamp, open_val float(5,3), close_val float(5,3), high_val float(5,3), low_val float(5,3), total_val bigint(22), total_amount int(20), week_day tinyint, EMA12 float(5,3) default 0, EMA26 float(5,3) default 0, DIF float(5,3) default 0, DEA float(5,3) default 0, primary key (id));"
+                         "(id int auto_increment, time timestamp, open_val float(5,3), close_val float(5,3), high_val float(5,3), low_val float(5,3), total_val bigint(25), total_amount int(25), week_day tinyint, EMA12 float(5,3) default 0, EMA26 float(5,3) default 0, DIF float(5,3) default 0, DEA float(5,3) default 0, primary key (id));"
             print create_cmd
             try:
                 self.cursor.execute(create_cmd)
@@ -209,7 +209,9 @@ class Stockchain():
         return result
 
     def calc_other(self, stock):
-        last_stock = self.get_last_n_sql_data(1)[0]
+        last_stock = self.get_last_n_sql_data(1)
+        if len(last_stock) == 0:
+            return stock
         ahead_DEA = last_stock[self.DEA_position]
         ahead_EMA12 = last_stock[self.EMA12_position]
         ahead_EMA26 = last_stock[self.EMA26_position]
