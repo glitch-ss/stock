@@ -42,10 +42,10 @@ class Stock():
         self.current_total_val = 0.0
         if self.stock_number.startswith('6'):
             self.detailurl='http://hq.sinajs.cn/list=sh' + str(self.stock_number)
-            self.url='http://hq.sinajs.cn/list=s_sh' + str(self.stock_number)
+            self.url='http://hq.sinajs.cn/list=sh' + str(self.stock_number)
         elif self.stock_number.startswith('0'):
             self.detailurl='http://hq.sinajs.cn/list=sz' + str(self.stock_number)
-            self.url='http://hq.sinajs.cn/list=s_sz' + str(self.stock_number) 
+            self.url='http://hq.sinajs.cn/list=sz' + str(self.stock_number) 
         
     def change_data(self, stock_dict):
         if isinstance(stock_dict, dict):
@@ -128,9 +128,16 @@ class Stock():
 
 class Stockchain():
     def __init__(self, stock_number):
+        self.DEA_position = 12
+        self.DIF_position = 11
+        self.amount_position = 7
+        self.value_amount_position = 6
+        self.close_value_position = 3
         self.stock_number = stock_number
         self.database = 'stock'
-        self.conn = connector.connect(host='localhost',user='root',passwd='56811375@Dandan', port=3306, db=self.database)
+        passwd1='56811375@Dandan'
+        passwd2='atobefuji'
+        self.conn = connector.connect(host='localhost',user='root',passwd=passwd1, port=3306, db=self.database)
         self.cursor = self.conn.cursor();
         query_cmd = "select table_name from information_schema.tables where table_name='{0}' and table_schema='{1}';".format(self.stock_number, self.database)
         self.cursor.execute(query_cmd)
@@ -285,17 +292,6 @@ class Stockchain():
         except Exception, e:
             print e
         
-    def read_chain(self, start=0, end=-1):
-        self.chainlist = self.r.lrange(self.stock_number, start, end)
-        for stock in self.chainlist:
-            stock = pickle.load(stock)
-            self.chain[stock.time] = stock
-        return self.chain
-    
-    def push(self, stock):
-        temp = pickle.dumps(stock)
-        self.r.rpush(self.stock_number, temp)
-        
     def write_all(self):
         for stock in self.chainlist:
             print stock.values()
@@ -309,15 +305,6 @@ class Stockchain():
         except Exception, e:
             print e
             print(self.stock_number+"'s table exist")
-    
-    def update_stock_val(self, stock_dict):
-        update_cmd = "update `" + self.stock_number +"` set (" + column_name + "=" + str(column_val) + ";"
-        try:    
-            self.cursor.execute(update_cmd)
-            self.conn.commit()
-        except Exception, e:
-            print e
-            
         
     def update_value(self, stock_dict, filter_dict):
         update_cmd = "update `{0}` set ".format(self.stock_number)

@@ -83,7 +83,7 @@ while True:
     stock.data_process()
     print stock.read_time
     if day != stock.read_time:
-        print day
+        logger1.warning("now the day is {0}, and the stock update date is {1}".format(day, stock.read_time))
         print "sleep 15 hours"
         logger1.warning("the stock 601318 is not update, maybe today is breaking, wait 15 hours")
         time.sleep(hours_15)
