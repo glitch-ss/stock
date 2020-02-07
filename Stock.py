@@ -212,6 +212,7 @@ class Stockchain():
         last_stock = self.get_last_n_sql_data(1)
         if len(last_stock) == 0:
             return stock
+        last_stock = last_stock[0]
         ahead_DEA = last_stock[self.DEA_position]
         ahead_EMA12 = last_stock[self.EMA12_position]
         ahead_EMA26 = last_stock[self.EMA26_position]
