@@ -39,6 +39,10 @@ class Stock():
         self.day_amount = 0.0
         self.data=[]
         self.is_stock=True
+        self.EMA12 = 0
+        self.EMA26 = 0
+        self.DIF = 0
+        self.DEA = 0
         self.current_total_val = 0.0
         if self.stock_number.startswith('6'):
             self.detailurl='http://hq.sinajs.cn/list=sh' + str(self.stock_number)
@@ -130,6 +134,8 @@ class Stockchain():
     def __init__(self, stock_number):
         self.DEA_position = 12
         self.DIF_position = 11
+        self.EMA12_position = 9
+        self.EMA26_position = 10
         self.amount_position = 7
         self.value_amount_position = 6
         self.close_value_position = 3
@@ -168,6 +174,17 @@ class Stockchain():
             return 0
         return count[0][0]
 
+    def get_last_n_sql_data(self, n):
+        get_cmd = "select * from `{0}` order by id desc limit {1};".format(self.stock_number, n)
+        try:
+            self.cursor.execute(get_cmd)
+            result = self.cursor.fetchall()
+        except Exception, e:
+            print e
+            print "get stock value fail"
+            return None
+        return result
+
     def get_from_sql(self, key_word='*', filters=None):
         #filters: dict
         #key_word: list
@@ -190,6 +207,17 @@ class Stockchain():
             print "get stock value fail"
             return None
         return result
+
+    def calc_other(self, stock):
+        last_stock = self.get_last_n_sql_data(1)[0]
+        ahead_DEA = last_stock[self.DEA_position]
+        ahead_EMA12 = last_stock[self.EMA12_position]
+        ahead_EMA26 = last_stock[self.EMA26_position]
+        stock.EMA12 = (ahead_EMA12*(12-1)/(12+1))+(float(stock.current_val)*2/(12+1))
+        stock.EMA26 = (ahead_EMA26*(26-1)/(26+1))+(float(stock.current_val)*2/(26+1))
+        stock.DIF = stock.EMA12 - stock.EMA26
+        stock.DEA = (ahead_DEA * 8 / 10) + (stock.DIF * 2 / 10)
+        return stock
 
     def get_from_txt(self):
         ahead_EMA12 = 0
@@ -233,8 +261,8 @@ class Stockchain():
             result = self.cursor.execute(insert_cmd)
             self.conn.commit()
         except Exception, e:
-            print e
-            print "fail to add data"
+            logger1.error(e)
+            logger1.error("fail to add data from txt") 
 
     def get_last_sql_time(self):
         cmd = "select time from `{0}` order by id desc limit 1;".format(self.stock_number) 
@@ -260,15 +288,15 @@ class Stockchain():
         now = datetime.datetime.now().strftime('%y-%m-%d')
         if not stock.time.startswith('20'):
             stock.time = "20"+stock.time
-        add_data_cmd = "insert into `{0}` (time, open_val, close_val, high_val, low_val, total_val, total_amount, week_day, EMA12, EMA26, DIF, DEA) values('{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})".format(self.stock_number, stock.time, stock.open_val, stock.current_val, stock.high_val, stock.low_val, stock.current_total_val, stock.current_total_amount, stock.week_day, 0, 0, 0, 0)
+        add_data_cmd = "insert into `{0}` (time, open_val, close_val, high_val, low_val, total_val, total_amount, week_day, EMA12, EMA26, DIF, DEA) values('{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})".format(self.stock_number, stock.time, stock.open_val, stock.current_val, stock.high_val, stock.low_val, stock.current_total_val, stock.current_total_amount, stock.week_day, stock.EMA12, stock.EMA26, stock.DIF, stock.DEA)
         try:
             result = self.cursor.execute(add_data_cmd)
             self.conn.commit()
-            #logger1.info("{0} update successfully".format(self.stock_number))
+            logger1.info("{0} update successfully".format(self.stock_number))
         except Exception, e:
-            print add_data_cmd
-            print e
-            print "fail to add data"
+            logger1.error(add_data_cmd)
+            logger1.error(e)
+            logger1.error("fail to add data")
     
     def sortchainlist(self):
         self.chainlist = sorted(self.chainlist)
@@ -278,12 +306,6 @@ class Stockchain():
             for temp in self.chainlist:
                 self.chaindict[temp.keys()[0]]=temp.values()[0]
         
-    def get_from_chaindict_by_time(self, time):
-        temp = self.chaindict[time]
-        print temp
-        #Stock_selected = pickle.load(temp)
-        return temp
-        
     def drop_table(self):
         try:
             drop_cmd = "drop table `" + self.stock_number + "`;"
@@ -291,10 +313,6 @@ class Stockchain():
             self.conn.commit()
         except Exception, e:
             print e
-        
-    def write_all(self):
-        for stock in self.chainlist:
-            print stock.values()
     
     def alter_stock_sql(self, command, column_name, column_type):
         try:
@@ -318,7 +336,7 @@ class Stockchain():
         try:
             self.cursor.execute(update_cmd)
             self.conn.commit()
-            #logging.debug("{0} index update".format(self.stock_number))
+            logging.debug("{0} index update".format(self.stock_number))
         except Exception, e:
             print e
             print "update {0} value fail".format(self.stock_number)

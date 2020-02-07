@@ -8,6 +8,7 @@ def update_stock(stock):
     if stock.open_val == "0.000" or not stock.is_stock:
         return 0
     stockchain = Stockchain(stock.stock_number)
+    stock = stockchain.calc_other(stock)
     stockchain.add_new_data(stock)
     return stockchain
 
@@ -41,6 +42,7 @@ def update():
             if stock.open_val == "0.000" or not stock.is_stock:
                 continue
             if update_stock(stock)==1:
+                update_other
                 sum=sum+1
 
 def alter_type():
