@@ -8,27 +8,16 @@ def update_stock(stock):
     if stock.open_val == "0.000" or not stock.is_stock:
         return 0
     stockchain = Stockchain(stock.stock_number)
-    stock = stockchain.calc_other(stock)
+    now_time = stockchain.get_last_sql_time()
+    if now_time == day:
+        logger1.warning("sql data has been updated to latest")
+        return stockchain
+    stock, last_time = stockchain.calc_other(stock)
     stockchain.add_new_data(stock)
     return stockchain
 
-def update_other(temp_stock_chain, time):
-    temp_stock = temp_stock_chain
-    current_data = temp_stock.get_from_sql(filters={"time": time})
-    if current_data is None:
-        print "init stock fail, could not get stock from sql"
-        return stock
-    i = current_data[0][0]
-    EMA12 = temp_stock.EMA(12, current_data[0])
-    EMA26 = temp_stock.EMA(26, current_data[0])
-    DIF = temp_stock.DIF(EMA12, EMA26)
-    temp_stock.update_DIF_EMA(i, EMA12, EMA26, DIF)
-    current_data = temp_stock.get_from_sql(filters={"id": i})
-    DEA = temp_stock.DEA(current_data[0])
-    temp_stock.update_DEA(i, DEA)
-
 def update():   
-    sum=0
+    sum=0 
     for sz in [0,1]:
         for i in range(0,5000):
             stock_number=600000+i
@@ -42,7 +31,6 @@ def update():
             if stock.open_val == "0.000" or not stock.is_stock:
                 continue
             if update_stock(stock)==1:
-                update_other
                 sum=sum+1
 
 def alter_type():
@@ -77,10 +65,6 @@ while True:
         time.sleep(hours_15)
         continue
     stock = Stock('601318')
-    now_time = checkstock.get_last_sql_time()
-    if now_time == day:
-        logger1.warning("sql data has been updated to latest, sleep 15 hours")
-        time.sleep(hours_15)
     stock.get_current_status()
     stock.data_process()
     print stock.read_time

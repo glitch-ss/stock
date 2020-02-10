@@ -213,6 +213,7 @@ class Stockchain():
         if len(last_stock) == 0:
             return stock
         last_stock = last_stock[0]
+        last_time = last_stock[1]
         ahead_DEA = last_stock[self.DEA_position]
         ahead_EMA12 = last_stock[self.EMA12_position]
         ahead_EMA26 = last_stock[self.EMA26_position]
@@ -220,7 +221,7 @@ class Stockchain():
         stock.EMA26 = (ahead_EMA26*(26-1)/(26+1))+(float(stock.current_val)*2/(26+1))
         stock.DIF = stock.EMA12 - stock.EMA26
         stock.DEA = (ahead_DEA * 8 / 10) + (stock.DIF * 2 / 10)
-        return stock
+        return stock, last_time
 
     def get_from_txt(self):
         ahead_EMA12 = 0
@@ -265,7 +266,7 @@ class Stockchain():
             self.conn.commit()
         except Exception, e:
             logger1.error(e)
-            logger1.error("fail to add data from txt") 
+            logger1.error("fail to add {0} data from txt".format(self.stock_number)) 
 
     def get_last_sql_time(self):
         cmd = "select time from `{0}` order by id desc limit 1;".format(self.stock_number) 
