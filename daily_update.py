@@ -1,4 +1,4 @@
-from Stock import Stock, Stockchain, logger1
+from Stock import Stock, Stockchain, logger1, logging, formatter
 import time
 import datetime
 import os
@@ -55,6 +55,11 @@ hours_15 = 15.5*60*60
 hours_3 = 3*60*60
 checkstock = Stockchain('601318')
 while True:
+    log_time = datetime.datetime.now().strftime('%Y-%m')
+    handler1 = logging.FileHandler("log/{0}".format(log_time))
+    handler1.setLevel(logging.INFO)
+    handler1.setFormatter(formatter)
+    logger1.addHandler(handler1)
     now = datetime.datetime.now()
     day = now.strftime('%Y-%m-%d')
     time_struct = now.timetuple()
