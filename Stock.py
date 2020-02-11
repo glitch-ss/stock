@@ -16,8 +16,9 @@ from __builtin__ import int
 
 logging.basicConfig(level=logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+log_time = datetime.datetime.now().strftime('%Y-%m')
 logger1 = logging.getLogger(__name__)
-handler1 = logging.FileHandler("log")
+handler1 = logging.FileHandler("log/{0}".format(log_time))
 handler1.setLevel(logging.INFO)
 handler1.setFormatter(formatter)
 logger1.addHandler(handler1)
