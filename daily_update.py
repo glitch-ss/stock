@@ -1,4 +1,5 @@
 from Stock import Stock, Stockchain, logger1, logging, formatter
+import traceback
 import time
 import datetime
 import os
@@ -55,36 +56,39 @@ hours_15 = 15.5*60*60
 hours_3 = 3*60*60
 checkstock = Stockchain('601318')
 while True:
-    log_time = datetime.datetime.now().strftime('%Y-%m')
-    handler1 = logging.FileHandler("log/{0}".format(log_time))
-    handler1.setLevel(logging.INFO)
-    handler1.setFormatter(formatter)
-    logger1.addHandler(handler1)
-    now = datetime.datetime.now()
-    day = now.strftime('%Y-%m-%d')
-    time_struct = now.timetuple()
-    hour = time_struct.tm_hour
-    weekday = now.weekday()+1
-    if weekday == 6 or weekday==7:
-        logger1.warning("today {0}, now in weekend".format(day))
-        time.sleep(hours_15)
-        continue
-    stock = Stock('601318')
-    stock.get_current_status()
-    stock.data_process()
-    print stock.read_time
-    if day != stock.read_time:
-        logger1.warning("now the day is {0}, and the stock update date is {1}".format(day, stock.read_time))
-        print "sleep 15 hours"
-        logger1.warning("the stock 601318 is not update, maybe today is breaking, wait 15 hours")
-        time.sleep(hours_15)
-        continue
-    elif hour < 15:
-        logger1.warning("now is early than 15 clock, wait 3 hours")
-        time.sleep(hours_3)
-        continue
-    else:
-        stock.time = stock.read_time
-        update()
-        time.sleep(hours_15)
+    try:
+        log_time = datetime.datetime.now().strftime('%Y-%m')
+        handler1 = logging.FileHandler("log/{0}".format(log_time))
+        handler1.setLevel(logging.INFO)
+        handler1.setFormatter(formatter)
+        logger1.addHandler(handler1)
+        now = datetime.datetime.now()
+        day = now.strftime('%Y-%m-%d')
+        time_struct = now.timetuple()
+        hour = time_struct.tm_hour
+        weekday = now.weekday()+1
+        if weekday == 6 or weekday==7:
+            logger1.warning("today {0}, now in weekend".format(day))
+            time.sleep(hours_15)
+            continue
+        stock = Stock('601318')
+        stock.get_current_status()
+        stock.data_process()
+        print stock.read_time
+        if day != stock.read_time:
+            logger1.warning("now the day is {0}, and the stock update date is {1}".format(day, stock.read_time))
+            print "sleep 15 hours"
+            logger1.warning("the stock 601318 is not update, maybe today is breaking, wait 15 hours")
+            time.sleep(hours_15)
+            continue
+        elif hour < 15:
+            logger1.warning("now is early than 15 clock, wait 3 hours")
+            time.sleep(hours_3)
+            continue
+        else:
+            stock.time = stock.read_time
+            update()
+            time.sleep(hours_15)
+    except Exception, e:
+        logging.error(str(traceback.format_exc()))
         
